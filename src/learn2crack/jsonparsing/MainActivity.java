@@ -2,6 +2,7 @@ package learn2crack.jsonparsing;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,6 +23,7 @@ public class MainActivity extends Activity {
   private static String url = "http://www.mocky.io/v2/5440667984d353f103f697c0";
   
   private ProgressDialog cargando;
+  AtomicBoolean isRunning = new AtomicBoolean(false);
   
   //JSON Node Names
   private static final String TAG_TITLE = "title";
@@ -43,8 +45,20 @@ public class MainActivity extends Activity {
 		cargando.setMessage("Cargando contenido...");
 		cargando.show();
         
-		
-		
+		Thread background = new Thread(new Runnable() {
+			
+			public void run() {
+				try {
+					for (int i=0;i<20 && isRunning.get(); i++) {
+						secundario();
+					}
+				} catch (Throwable t) {
+				}
+			}
+		});
+    	
+    	isRunning.set(true);
+    	background.start();
     }
     
     @Override
@@ -53,7 +67,12 @@ public class MainActivity extends Activity {
 		eliminarCargando();
 	}
     
-    protected void secundario(){
+    public void onStop() {
+    	super.onStop();
+    	isRunning.set(false);
+    }
+    
+    protected void secundario() {
     	
     // Creating new JSON Parser
     JSONParser jParser = new JSONParser();
@@ -80,6 +99,8 @@ public class MainActivity extends Activity {
       listView.setAdapter(adapter);
       
       eliminarCargando();
+      
+//      lanzar(view, url);
       
     	} catch (JSONException e) {
     		e.printStackTrace();
