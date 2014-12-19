@@ -1,17 +1,27 @@
 package learn2crack.jsonparsing;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import learn2crack.jsonparsing.library.JSONParser;
 
 public class MainActivity extends Activity {
   //URL to get JSON Array
-  private static String url = "http://api.learn2crack.com/android/json/";
-  //private static String url = "http://www.mocky.io/v2/5440667984d353f103f697c0";
+  //private static String url = "http://api.learn2crack.com/android/json/";
+  private static String url = "http://www.mocky.io/v2/5440667984d353f103f697c0";
+  
+  private ProgressDialog cargando;
   
   //JSON Node Names
   private static final String TAG_TITLE = "title";
@@ -20,11 +30,31 @@ public class MainActivity extends Activity {
   private static final String TAG_LINK = "link";
   JSONArray arreglo_json;
   
+  	private List<Item> items = new ArrayList<Item>();
+	private ListView listView;
+	private ListAdapter adapter;
+  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+        cargando = new ProgressDialog(this);
+		cargando.setMessage("Cargando contenido...");
+		cargando.show();
+        
+		
+		
+    }
+    
+    @Override
+	public void onDestroy() {
+		super.onDestroy();
+		eliminarCargando();
+	}
+    
+    protected void secundario(){
+    	
     // Creating new JSON Parser
     JSONParser jParser = new JSONParser();
     
@@ -41,20 +71,33 @@ public class MainActivity extends Activity {
     	  String image = jsonobject.getString(TAG_IMAGE);
     	  String points = jsonobject.getString(TAG_POINTS);
     	  String link = jsonobject.getString(TAG_LINK);
+    	  Item item = new Item(title, image, points, link);
+    	  items.add(item);
       }
       
-      //Importing TextView
-      final TextView uid = (TextView)findViewById(R.id.uid);
-      final TextView name1 = (TextView)findViewById(R.id.name);
-      final TextView email1 = (TextView)findViewById(R.id.email);
+      listView = (ListView) findViewById(R.id.listView1);
+      adapter = new myListAdapter(MainActivity.this, items);
+      listView.setAdapter(adapter);
       
-      //Set JSON Data in TextView
-      uid.setText(id);
-      name1.setText(name);
-      email1.setText(email);
+      eliminarCargando();
       
-  } catch (JSONException e) {
-    e.printStackTrace();
-  }
+    	} catch (JSONException e) {
+    		e.printStackTrace();
+    	}
     }
+    
+    public void lanzar(View view, String url) {
+        Intent i = new Intent(this, Mas.class );
+        i.putExtra("url", url);
+        startActivity(i);
+    }
+    
+    private void eliminarCargando()
+    {
+		if (cargando != null)
+		{
+			cargando.dismiss();
+			cargando = null;
+		}
+	}
 }

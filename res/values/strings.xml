@@ -4,5 +4,7 @@
     <string name="app_name">control1multimedios</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="desc">Imagen de item</string>
+    <string name="desc_lista">Imagen de lista</string>
 
 </resources>
